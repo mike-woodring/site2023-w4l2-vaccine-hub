@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 
+const { PORT } = require("./config");
 const { BadRequestError, NotFoundError } = require("./utils/errors");
 
 const app = express();
@@ -10,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("tiny"));
 
-const PORT = process.env.PORT || 3001;
+// const PORT = process.env.PORT || 3001;
 
 app.use((req, res, next) => {
     return next(new NotFoundError())
