@@ -1,0 +1,12 @@
+{
+  "name": "site2023-w4l2-vaccine-hub",
+  "version": "1.0.0",
+  "description": "For this lab, interns will be building the backend for a Vaccine Registration platform. The purpose is to allow users to register for a vaccine with their credentials, as well as be able to login and check their appointment info.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
