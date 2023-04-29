@@ -1,4 +1,10 @@
 {
+  "name": "vaccine-hub",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
   "dependencies": {
     "bcrypt": "^5.1.0",
     "colors": "^1.4.0",
