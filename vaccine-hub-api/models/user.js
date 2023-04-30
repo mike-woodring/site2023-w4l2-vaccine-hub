@@ -5,18 +5,53 @@ const { BCRYPT_WORK_FACTOR } = require("../config");
 
 class User {
     static async login(credentials) {
+        console.log({
+            "context": "login",
+            "credentials": credentials
+        });
+
         // Use should submit their email and password. If any fields are
         // missing, throw an error.
         //
-        // Lookup the user in the DB by email. If a user is found,
-        // compare the submitted password with the password in the DB.
-        // If there is a match, return the user. If anything goes wrong,
-        // throw an error.
-        // 
+        const requiredFields = ["email", "password"];
+
+        requiredFields.forEach(field => {
+            if (!credentials.hasOwnProperty(field)) {
+                throw new BadRequestError(`Missing ${field} in request body.`);
+            }
+        });
+
+        // Lookup the user in the DB by email. If not found, return a failure.
+        //
+        const existingUser = await User.fetchUserByEmail(credentials.email);
+
+        // If a user is found, compare the submitted password with the password in the DB
+        // using the hashing scheme we've designed. If there is a match, return the user.
+        //
+        if (existingUser) {
+            console.log({
+                "context": "login/after fetchUserByEmail",
+                "existingUser": existingUser
+            });
+               
+            const isValid = await bcrypt.compare(credentials.password, existingUser.password);
+
+            if (isValid) {
+                return User._createPublicUser(existingUser);
+            }
+        }
+
+        // If anything goes wrong, throw an error.
+        //
         throw new UnauthorizedError("Invalid email/password combo");
     }
 
     static async register(credentials) {
+        console.log({
+            "context": "register",
+            "credentials": credentials
+        });
+
         // User should submit their email, password, and TBD.
         // If any of these fields is missing, throw an error.
         //
@@ -80,7 +115,7 @@ class User {
 
         const user = result.rows[0];
 
-        return user;
+        return User._createPublicUser(user);
     }
 
     static async fetchUserByEmail(email) {
@@ -111,6 +146,15 @@ class User {
         });
 
         return result;
+    }
+
+    static _createPublicUser(user) {
+        return {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email
+        }
     }
 }
 
