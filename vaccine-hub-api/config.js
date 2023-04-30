@@ -2,6 +2,7 @@ require("dotenv").config();
 require("colors");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
+const BCRYPT_WORK_FACTOR = 13;
 
 function getDatabaseUri() {
     const dbUser = process.env.DATABASE_USER || "postgres";
@@ -21,5 +22,6 @@ console.log({
 
 module.exports = {
     PORT,
+    BCRYPT_WORK_FACTOR,
     getDatabaseUri
 };

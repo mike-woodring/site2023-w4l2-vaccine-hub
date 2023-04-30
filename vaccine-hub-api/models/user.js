@@ -1,5 +1,7 @@
 const db = require("../db");
+const bcrypt = require("bcrypt");
 const { BadRequest, UnauthorizedError, BadRequestError } = require("../utils/errors");
+const { BCRYPT_WORK_FACTOR } = require("../config");
 
 class User {
     static async login(credentials) {
@@ -37,7 +39,7 @@ class User {
 
         // Hash the users's password.
         //
-        // TBD
+        const hashedPassword = await User.hashPassword(credentials.password);
 
         // Lowercase the user's email.
         //
@@ -47,8 +49,9 @@ class User {
         //
         console.log({
             "context": "register",
-            "email": lowerEmail,
+            "lowerEmail": lowerEmail,
             "password": credentials.password,
+            "hashedPassword": hashedPassword,
             "first_name": credentials.first_name,
             "last_name": credentials.last_name
         });
@@ -65,10 +68,11 @@ class User {
                 $2,
                 $3,
                 $4
-            );`,
+            )
+            RETURNING *;`,
             [
                 lowerEmail,
-                credentials.password,
+                hashedPassword,
                 credentials.first_name,
                 credentials.last_name
             ]
@@ -84,7 +88,7 @@ class User {
             throw new BadRequestError("No email provided.");
         }
 
-        const query = `SELECT * FROM users WHERE email = $1`;
+        const query = `SELECT * FROM users WHERE email = $1;`;
         const result = await db.query(query, [email.toLowerCase()]);
         const user = result.rows[0];
 
@@ -95,6 +99,18 @@ class User {
         });
 
         return user;
+    }
+
+    static async hashPassword(clearTextPassword) {
+        const result = await bcrypt.hash(clearTextPassword, BCRYPT_WORK_FACTOR);
+        
+        console.log({
+            "context": "hashPassword",
+            "clearTextPassword": clearTextPassword,
+            "result": result
+        });
+
+        return result;
     }
 }
 
